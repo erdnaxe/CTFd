@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, reqparse
 from sqlalchemy import select
 
 from CTFd.cache import cache, make_cache_key
@@ -94,7 +94,12 @@ class ScoreboardDetail(Resource):
     def get(self, count):
         response = {}
 
-        standings = get_standings(count=count)
+        # Optional filters
+        parser = reqparse.RequestParser()
+        parser.add_argument("bracket_id", type=int, help="Bracket to filter for")
+        args = parser.parse_args()
+
+        standings = get_standings(count=count, bracket_id=args.bracket_id)
 
         team_ids = [team.account_id for team in standings]
 
